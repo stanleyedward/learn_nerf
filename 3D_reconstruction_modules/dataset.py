@@ -25,22 +25,25 @@ def get_rays(datapath, mode='train'):
     
     images = []
     
+    #since names are not sorted we cannot use different names  we must use one
     for i in range(N):
-        pose_name = pose_file_names[i]
-        pose = open(datapath + f'/{mode}/pose/' + pose_name).read().split()
+        # pose_name = pose_file_names[i]
+        name = pose_file_names[i]
+
+        pose = open(datapath + f'/{mode}/pose/' + name).read().split()
         poses[i] = np.array(pose, dtype=float).reshape(4,4)
         
         # print(poses[i])
         
-        intrinsics_name = intrinsics_file_names[i]
-        intrinsic = open(datapath + f'/{mode}/intrinsics/' + intrinsics_name).read().split()
+        # intrinsics_name = intrinsics_file_names[i]
+        intrinsic = open(datapath + f'/{mode}/intrinsics/' + name).read().split()
         intrinsics[i] = np.array(intrinsic, dtype=float).reshape(4, 4)
         
         # print(intrinsics[i])
         
         #Read images
-        image_name = img_file_names[i]
-        img = imageio.imread(datapath + '/imgs/' + image_name)
+        # image_name = img_file_names[i]
+        img = imageio.imread(datapath + '/imgs/' + name.replace('.txt', '.png'))
         max_img_intensity = float(img.max()) #255 
         img = img / max_img_intensity #normalizing pixel intensities so theyre between 0-1
         
