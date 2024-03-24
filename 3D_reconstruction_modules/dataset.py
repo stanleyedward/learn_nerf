@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 
 def get_rays(datapath, mode='train'):
-    pose_file_names = [f for f in os.listdir(datapath + '/{mode}/pose/') if f.endswith('.txt')]
-    intrinsics_file_names= [f for f in os.listdir(datapath + '/{mode}/intrinsics/') if f.endswith('.txt')]
+    print(f"Mode: {mode}")
+    pose_file_names = [f for f in os.listdir(datapath + f'/{mode}/pose/') if f.endswith('.txt')]
+    intrinsics_file_names= [f for f in os.listdir(datapath + f'/{mode}/intrinsics/') if f.endswith('.txt')]
         
-    img_file_names = [f for f in os.listdir(datapath + '/imgs/') if 'train' in f]
+    img_file_names = [f for f in os.listdir(datapath + '/imgs/') if mode in f]
     print(f"Image files length: {len(img_file_names)}")
     print(f"Pose files length: {len(pose_file_names)}")
     print(f"Intrinsic files length: {len(intrinsics_file_names)}")
@@ -26,13 +27,13 @@ def get_rays(datapath, mode='train'):
     
     for i in range(N):
         pose_name = pose_file_names[i]
-        pose = open(datapath + '{mode}/pose/' + pose_name).read().split()
+        pose = open(datapath + f'/{mode}/pose/' + pose_name).read().split()
         poses[i] = np.array(pose, dtype=float).reshape(4,4)
         
         # print(poses[i])
         
         intrinsics_name = intrinsics_file_names[i]
-        intrinsic = open(datapath + '{mode}/intrinsics/' + intrinsics_name).read().split()
+        intrinsic = open(datapath + f'/{mode}/intrinsics/' + intrinsics_name).read().split()
         intrinsics[i] = np.array(intrinsic, dtype=float).reshape(4, 4)
         
         # print(intrinsics[i])
