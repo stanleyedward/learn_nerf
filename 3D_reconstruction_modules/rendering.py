@@ -36,13 +36,13 @@ def rendering(model, rays_origin, rays_direction, tn, tf, nb_bins = 100, device 
     
     alpha = 1 - torch.exp(-density.squeeze() * delta.unsqueeze(0)) # shape [nb_rays, nb_bins, 1]
     T = compute_accumulated_transmittance(1 - alpha) # shape [nb_rays, nb_bins, 1]
-    weights = T * alpha
+    weights = T * alpha #[nb_rays, nb_bins]
     
     #since our dataset wasnt consistent with our render as we had a white background
     #if we are in empty space we need to produce value of zero ie black(0) not white (1)
     if white_background:  
         color = (weights.unsqueeze(-1) * colors).sum(1) #shape [nb_rays, 3]
-        weight_sum = weights.sum(-1).sum(-1) #[nb_rays] tells if we are in empty space or no via accumulation of denity
+        weight_sum = weights.sum(-1) #[nb_rays] tells if we are in empty space or no via accumulation of denity
         # when using white background regularization
         return color + 1 - weight_sum.unsqueeze(-1)
 
