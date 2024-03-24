@@ -16,7 +16,7 @@ class Voxels(nn.Module):
         
         condition = (x.abs() < (self.scale / 2)) & (y.abs() < (self.scale / 2)) & (z.abs() < (self.scale / 2))
 
-        colors_and_densities = torch.zeros((xyz.shape[0], 4))
+        colors_and_densities = torch.zeros((xyz.shape[0], 4), device=xyz.device)
         # colors_and_densities[condition, :3] = torch.Tensor([1., 0., 0.]) #colors #uncomment for red cube
         # colors_and_densities[condition, -1] = 10 #density #uncomment for red cube
         
