@@ -21,6 +21,11 @@ def rendering(model, rays_origin, rays_direction, tn, tf, nb_bins = 100, device 
     # query the opacity and the colors at each point x
     #query the color and the denisty at each point X to
     # comput the integral
+   
+    #for nerf model
+    #  [nb_rays, 3] -> [nb_rays * nb_bins, 3]
+    #change its size to expand
+    #reshape at the end so its the same shape as x
     
     colors, density = model.intersect(x.reshape(-1, 3), rays_direction.expand(x.shape[1], x.shape[0], 3).transpose(0, 1).reshape(-1, 3))
     

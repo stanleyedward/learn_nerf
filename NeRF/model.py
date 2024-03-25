@@ -12,7 +12,7 @@ class Voxels(nn.Module):
         self.device = device
         self.scale = scale
         
-    def forward(self, xyz, d):
+    def forward(self, xyz, direction):
         x = xyz[:, 0]
         y = xyz[:, 1]
         z = xyz[:, 2]
@@ -33,5 +33,5 @@ class Voxels(nn.Module):
         # return colors_and_densities[:, :3], colors_and_densities[:, -1:] #uncomment for red cube
         return torch.sigmoid(colors_and_densities[:, :3]), torch.relu(colors_and_densities[:, -1:]) # uncomment if its barely visible
     
-    def intersect(self, x, d):
-        return self.forward(x, d)
+    def intersect(self, x, direction):
+        return self.forward(x, direction)
