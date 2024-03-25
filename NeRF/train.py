@@ -25,7 +25,7 @@ def training(model, optimizer, scheduler, dataloader,tn, tf, nb_bins, nb_epochs,
             
         scheduler.step()
         
-        torch.save(model.cpu(), 'models/model_voxels')
+        torch.save(model.cpu(), 'models/model_nerf')
         model.to(device)
         
         
