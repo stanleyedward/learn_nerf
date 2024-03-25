@@ -22,7 +22,7 @@ def rendering(model, rays_origin, rays_direction, tn, tf, nb_bins = 100, device 
     #query the color and the denisty at each point X to
     # comput the integral
     
-    colors, density = model.intersect(x.reshape(-1, 3), rays_direction.expand(x.shape[1], x.shape[0], 3).transpose(0, 1).reshape(-1, 3))
+    colors, density = model.intersect(x.reshape(-1, 3))
     
     colors = colors.reshape((x.shape[0], nb_bins, 3)) #shape [nb_rays, nb_bins, 3]
     density = density.reshape((x.shape[0], nb_bins, 1)) #[nb_rays, nb_bins, 1]
