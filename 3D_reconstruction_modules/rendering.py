@@ -8,10 +8,10 @@ def rendering(model, rays_origin, rays_direction, tn, tf, nb_bins = 100, device 
     delta = torch.cat((t[1:] - t[:-1], torch.tensor([1e10], device=device))) #size is no of bins - 1 so we concat infinity as the last value
     #most nerf papers take the last delta value as infinity
     
-    # convert to torch.Tensors
-    if not (torch.is_tensor(rays_origin)): 
-        rays_origin = torch.from_numpy(rays_origin)
-        rays_direction = torch.from_numpy(rays_direction)
+    # # convert to torch.Tensors
+    # if not (torch.is_tensor(rays_origin)): 
+    #     rays_origin = torch.from_numpy(rays_origin).to(device)
+    #     rays_direction = torch.from_numpy(rays_direction).to(device)
     
     # x = rays_origin + t * rays_direction
     # t.shape = [nb_bins]
@@ -27,7 +27,7 @@ def rendering(model, rays_origin, rays_direction, tn, tf, nb_bins = 100, device 
     #query the color and the denisty at each point X to
     # comput the integral
     
-    colors, density = model.intersect(x.reshape(-1, 3))
+    colors, density = model.intersect(x.reshape(-1, 3), rays_direction.expand(x.shape[1], x.shape[0], 3).transpose(0, 1).reshape(-1, 3))
     
     #reshape colors to [nb_rays, nb_bins, 3]
     #reshape density to [nb_rays, nb_bins, 1]
@@ -38,17 +38,21 @@ def rendering(model, rays_origin, rays_direction, tn, tf, nb_bins = 100, device 
     T = compute_accumulated_transmittance(1 - alpha) # shape [nb_rays, nb_bins, 1]
     weights = T * alpha #[nb_rays, nb_bins]
     
+    # alpha = 1 - torch.exp(-density.squeeze() * delta.unsqueeze(0)) # shape [nb_rays, nb_bins, 1]
+    # weights = compute_accumulated_transmittance(1 - alpha) * alpha #[nb_rays, nb_bins]
+    
     #since our dataset wasnt consistent with our render as we had a white background
     #if we are in empty space we need to produce value of zero ie black(0) not white (1)
     if white_background:  
         color = (weights.unsqueeze(-1) * colors).sum(1) #shape [nb_rays, 3]
-        weight_sum = weights.sum(-1) #[nb_rays] tells if we are in empty space or no via accumulation of denity
-        # when using white background regularization
+        weight_sum = weights.sum(-1) #[nb_rays] tells if we are in empty space or no via accumulation of denity # when using white background regularization
+        
         return color + 1 - weight_sum.unsqueeze(-1)
 
     else:
         # color = (T.unsqueeze(-1) * alpha.unsqueeze(-1) * colors).sum(1) #shape [nb_rays, 3]
         color = (weights.unsqueeze(-1) * colors).sum(1) #shape [nb_rays, 3]
+        
     return color
 
 
@@ -62,7 +66,8 @@ def rendering(model, rays_origin, rays_direction, tn, tf, nb_bins = 100, device 
 
 #improved for differentiability
 def compute_accumulated_transmittance(betas):
-    accumulated_transmittance = torch.cumprod(betas, 1)      
+    accumulated_transmittance = torch.cumprod(betas, 1)  
+        
     return torch.cat((torch.ones(accumulated_transmittance.shape[0], 1, device=accumulated_transmittance.device),#since we shift to the right
                       accumulated_transmittance[:, :-1]), dim=1) #sum goes from i =1 to i= N-1
 
