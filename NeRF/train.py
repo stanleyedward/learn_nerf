@@ -6,8 +6,15 @@ import torch
 def training(model, optimizer, scheduler, dataloader,tn, tf, nb_bins, nb_epochs, device= 'cpu'):
     
     training_loss = []
+    
+    progress_bar = tqdm(
+    enumerate(dataloader), 
+    total=len(dataloader),
+    )
+    
     for epoch in range(nb_epochs):
-        for batch in tqdm(dataloader):
+        progress_bar.set_description(f"Training Epoch: {epoch}")
+        for idx ,batch in progress_bar:
             origin = batch[:, :3].to(device)
             direction = batch[:, 3:6].to(device)
             
@@ -21,6 +28,11 @@ def training(model, optimizer, scheduler, dataloader,tn, tf, nb_bins, nb_epochs,
             loss.backward()
             optimizer.step()
             
+            progress_bar.set_postfix(
+            {
+                "loss": loss.item() 
+            }
+            )
             training_loss.append(loss.item())
             
         scheduler.step()
